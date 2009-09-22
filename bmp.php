@@ -1,28 +1,42 @@
 <?
-/*
-*------------------------------------------------------------
-*                   BMP Image functions
-*------------------------------------------------------------
-*                      By JPEXS
-*/
+/**
+ * @package com.jpexs.image.bmp
+ *
+ * JPEXS BMP Image functions
+ * @version 1.1
+ * @author JPEXS
+ * @copyright (c) JPEXS 2004-2009
+ *
+ * Webpage: http://www.jpexs.com
+ * Email: jpexs@jpexs.com
+ *
+ * If you like my script, you can donate... visit my webpages or email me for more info.
+ *
+ *        Version changes:
+ *                v1.1 - redesigned sourcecode, phpdoc included, all internal functions and global variables have prefix "jpexs_"
+ *
+ * TODO list:
+ *      - better error handling
+ *      - class encapsulation
+ * License:
+ *      - you can freely use it
+ *      - you can freely distribute sourcecode
+ *      - you can freely modify it as long as you leave my copyright/author info in source code
+ *      - if you developing closesource application, you should add my name at least to "about" page of your web application
+ *      - if you create an amazing modification, please contact me... I can publish link to your webpage if you're interested...
+ *      - if you want to use my script in commercial application for earning money, you should make a donation to me first
+ */
 
 
 
-
-/*
-*------------------------------------------------------------
-*                    ImageBMP
-*------------------------------------------------------------
-*            - Creates new BMP file
-*
-*         Parameters:  $img - Target image
-*                      $file - Target file to store
-*                            - if not specified, bmp is returned
-*
-*           Returns: if $file specified - true if OK
-                     if $file not specified - image data
-*/
-function imagebmp($img,$file="",$RLE=0)
+/**
+ * Creates new BMP file from image resource
+ * @param resource $img Image resource to convert
+ * @param string $file File to save image to. If ommited or "", file is written to standard output
+ * @param boolean $useRLE When true, file will be saved with RLE compression (EXPERIMENTAL)
+ * @return boolean True when successfully writen to specified file
+ */
+function imagebmp($img,$file="",$useRLE=false)
 {
 
 
@@ -53,21 +67,21 @@ if(($ColorCount>16)and($ColorCount<=256)) { $ColorCount=0; $BitCount=8;};
 
                 // Bitmap File Header
                 $ret = 'BM';                        // header (2b)
-                $ret .= int_to_dword($size);        // size of file (4b)
-                $ret .= int_to_dword(0);        // reserved (4b)
-                $ret .= int_to_dword($offset);        // byte location in the file which is first byte of IMAGE (4b)
+                $ret .= jpexs_int_to_dword($size);        // size of file (4b)
+                $ret .= jpexs_int_to_dword(0);        // reserved (4b)
+                $ret .= jpexs_int_to_dword($offset);        // byte location in the file which is first byte of IMAGE (4b)
                 // Bitmap Info Header
-                $ret .= int_to_dword(40);        // Size of BITMAPINFOHEADER (4b)
-                $ret .= int_to_dword($Width);        // width of bitmap (4b)
-                $ret .= int_to_dword($Height);        // height of bitmap (4b)
-                $ret .= int_to_word(1);        // biPlanes = 1 (2b)
-                $ret .= int_to_word($BitCount);        // biBitCount = {1 (mono) or 4 (16 clr ) or 8 (256 clr) or 24 (16 Mil)} (2b)
-                $ret .= int_to_dword($RLE);        // RLE COMPRESSION (4b)
-                $ret .= int_to_dword(0);        // width x height (4b)
-                $ret .= int_to_dword(0);        // biXPelsPerMeter (4b)
-                $ret .= int_to_dword(0);        // biYPelsPerMeter (4b)
-                $ret .= int_to_dword(0);        // Number of palettes used (4b)
-                $ret .= int_to_dword(0);        // Number of important colour (4b)
+                $ret .= jpexs_int_to_dword(40);        // Size of BITMAPINFOHEADER (4b)
+                $ret .= jpexs_int_to_dword($Width);        // width of bitmap (4b)
+                $ret .= jpexs_int_to_dword($Height);        // height of bitmap (4b)
+                $ret .= jpexs_int_to_word(1);        // biPlanes = 1 (2b)
+                $ret .= jpexs_int_to_word($BitCount);        // biBitCount = {1 (mono) or 4 (16 clr ) or 8 (256 clr) or 24 (16 Mil)} (2b)
+                $ret .= jpexs_int_to_dword($useRLE);        // RLE COMPRESSION (4b)
+                $ret .= jpexs_int_to_dword(0);        // width x height (4b)
+                $ret .= jpexs_int_to_dword(0);        // biXPelsPerMeter (4b)
+                $ret .= jpexs_int_to_dword(0);        // biYPelsPerMeter (4b)
+                $ret .= jpexs_int_to_dword(0);        // Number of palettes used (4b)
+                $ret .= jpexs_int_to_dword(0);        // Number of important colour (4b)
                 // image data
 
                 $CC=$ColorCount;
@@ -81,19 +95,19 @@ if(($ColorCount>16)and($ColorCount<=256)) { $ColorCount=0; $BitCount=8;};
                      for($p=0;$p<$ColorTotal;$p++)
                      {
                       $color=imagecolorsforindex($img,$p);
-                       $ret.=inttobyte($color["blue"]);
-                       $ret.=inttobyte($color["green"]);
-                       $ret.=inttobyte($color["red"]);
-                       $ret.=inttobyte(0); //RESERVED
+                       $ret.=jpexs_inttobyte($color["blue"]);
+                       $ret.=jpexs_inttobyte($color["green"]);
+                       $ret.=jpexs_inttobyte($color["red"]);
+                       $ret.=jpexs_inttobyte(0); //RESERVED
                      };
 
                     $CT=$ColorTotal;
                   for($p=$ColorTotal;$p<$CC;$p++)
                        {
-                      $ret.=inttobyte(0);
-                      $ret.=inttobyte(0);
-                      $ret.=inttobyte(0);
-                      $ret.=inttobyte(0); //RESERVED
+                      $ret.=jpexs_inttobyte(0);
+                      $ret.=jpexs_inttobyte(0);
+                      $ret.=jpexs_inttobyte(0);
+                      $ret.=jpexs_inttobyte(0); //RESERVED
                      };
                    };
 
@@ -107,10 +121,10 @@ if($BitCount<=8)
   for($x=0;$x<$Width;$x++)
    {
    $color=imagecolorat($img,$x,$y);
-   $bWrite.=decbinx($color,$BitCount);
+   $bWrite.=jpexs_decbinx($color,$BitCount);
    if(strlen($bWrite)==8)
     {
-     $retd.=inttobyte(bindec($bWrite));
+     $retd.=jpexs_inttobyte(bindec($bWrite));
      $bWrite="";
     };
    };
@@ -120,14 +134,14 @@ if($BitCount<=8)
      $sl=strlen($bWrite);
      for($t=0;$t<8-$sl;$t++)
       $sl.="0";
-     $retd.=inttobyte(bindec($bWrite));
+     $retd.=jpexs_inttobyte(bindec($bWrite));
     };
  for($z=0;$z<$Zbytek;$z++)
-   $retd.=inttobyte(0);
+   $retd.=jpexs_inttobyte(0);
  };
 };
 
-if(($RLE==1)and($BitCount==8))
+if(($useRLE)and($BitCount==8))
 {
  for($t=0;$t<strlen($retd);$t+=4)
   {
@@ -189,42 +203,41 @@ $ret.=$retd;
 };
 
 
-/*
-*------------------------------------------------------------
-*                    ImageCreateFromBmp
-*------------------------------------------------------------
-*            - Reads image from a BMP file
-*
-*         Parameters:  $file - Target file to load
-*
-*            Returns: Image ID
-*/
-
+/**
+ * Reads image from a BMP file and converts it to image resource
+ * @global int $jpexs_CurrentBit Internal variable
+ * @param string $file File to read BMP image from
+ * @return resource Image resource or false on error
+ *
+ * Note:
+ *  Reading RLE compressed bitmaps is EXPERIMENTAL
+ *  Reading palette based bitmaps with less than 8bit palette is EXPERIMENTAL
+ */
 function imagecreatefrombmp($file)
 {
-global  $CurrentBit, $echoMode;
+global  $jpexs_CurrentBit;
 
 $f=fopen($file,"r");
 $Header=fread($f,2);
 
 if($Header=="BM")
 {
- $Size=freaddword($f);
- $Reserved1=freadword($f);
- $Reserved2=freadword($f);
- $FirstByteOfImage=freaddword($f);
+ $Size=jpexs_freaddword($f);
+ $Reserved1=jpexs_freadword($f);
+ $Reserved2=jpexs_freadword($f);
+ $FirstByteOfImage=jpexs_freaddword($f);
 
- $SizeBITMAPINFOHEADER=freaddword($f);
- $Width=freaddword($f);
- $Height=freaddword($f);
- $biPlanes=freadword($f);
- $biBitCount=freadword($f);
- $RLECompression=freaddword($f);
- $WidthxHeight=freaddword($f);
- $biXPelsPerMeter=freaddword($f);
- $biYPelsPerMeter=freaddword($f);
- $NumberOfPalettesUsed=freaddword($f);
- $NumberOfImportantColors=freaddword($f);
+ $SizeBITMAPINFOHEADER=jpexs_freaddword($f);
+ $Width=jpexs_freaddword($f);
+ $Height=jpexs_freaddword($f);
+ $biPlanes=jpexs_freadword($f);
+ $biBitCount=jpexs_freadword($f);
+ $RLECompression=jpexs_freaddword($f);
+ $WidthxHeight=jpexs_freaddword($f);
+ $biXPelsPerMeter=jpexs_freaddword($f);
+ $biYPelsPerMeter=jpexs_freaddword($f);
+ $NumberOfPalettesUsed=jpexs_freaddword($f);
+ $NumberOfImportantColors=jpexs_freaddword($f);
 
 if($biBitCount<24)
  {
@@ -232,10 +245,10 @@ if($biBitCount<24)
   $Colors=pow(2,$biBitCount);
   for($p=0;$p<$Colors;$p++)
    {
-    $B=freadbyte($f);
-    $G=freadbyte($f);
-    $R=freadbyte($f);
-    $Reserved=freadbyte($f);
+    $B=jpexs_freadbyte($f);
+    $G=jpexs_freadbyte($f);
+    $R=jpexs_freadbyte($f);
+    $Reserved=jpexs_freadbyte($f);
     $Palette[]=imagecolorallocate($img,$R,$G,$B);
    };
 
@@ -248,15 +261,15 @@ if($RLECompression==0)
 
 for($y=$Height-1;$y>=0;$y--)
     {
-     $CurrentBit=0;
+     $jpexs_CurrentBit=0;
      for($x=0;$x<$Width;$x++)
       {
-         $C=freadbits($f,$biBitCount);
+         $C=jpexs_freadbits($f,$biBitCount);
        imagesetpixel($img,$x,$y,$Palette[$C]);
       };
-    if($CurrentBit!=0) {freadbyte($f);};
+    if($jpexs_CurrentBit!=0) {jpexs_freadbyte($f);};
     for($g=0;$g<$Zbytek;$g++)
-     freadbyte($f);
+     jpexs_freadbyte($f);
      };
 
  };
@@ -272,8 +285,8 @@ $pocetb=0;
 while(true)
 {
 $y--;
-$prefix=freadbyte($f);
-$suffix=freadbyte($f);
+$prefix=jpexs_freadbyte($f);
+$suffix=jpexs_freadbyte($f);
 $pocetb+=2;
 
 $echoit=false;
@@ -289,7 +302,7 @@ while(!(($prefix==0)and($suffix==0)))
    $pocet=$suffix;
    $Data.=fread($f,$pocet);
    $pocetb+=$pocet;
-   if($pocetb%2==1) {freadbyte($f); $pocetb++;};
+   if($pocetb%2==1) {jpexs_freadbyte($f); $pocetb++;};
   };
  if($prefix>0)
   {
@@ -297,8 +310,8 @@ while(!(($prefix==0)and($suffix==0)))
    for($r=0;$r<$pocet;$r++)
     $Data.=chr($suffix);
   };
- $prefix=freadbyte($f);
- $suffix=freadbyte($f);
+ $prefix=jpexs_freadbyte($f);
+ $suffix=jpexs_freadbyte($f);
  $pocetb+=2;
  if($echoit) echo "Prefix: $prefix Suffix: $suffix<BR>";
 };
@@ -325,8 +338,8 @@ while(true)
 {
 //break;
 $y--;
-$prefix=freadbyte($f);
-$suffix=freadbyte($f);
+$prefix=jpexs_freadbyte($f);
+$suffix=jpexs_freadbyte($f);
 $pocetb+=2;
 
 $echoit=false;
@@ -341,12 +354,12 @@ while(!(($prefix==0)and($suffix==0)))
   {
    $pocet=$suffix;
 
-   $CurrentBit=0;
+   $jpexs_CurrentBit=0;
    for($h=0;$h<$pocet;$h++)
-    $Data.=chr(freadbits($f,4));
-   if($CurrentBit!=0) freadbits($f,4);
+    $Data.=chr(jpexs_freadbits($f,4));
+   if($jpexs_CurrentBit!=0) jpexs_freadbits($f,4);
    $pocetb+=ceil(($pocet/2));
-   if($pocetb%2==1) {freadbyte($f); $pocetb++;};
+   if($pocetb%2==1) {jpexs_freadbyte($f); $pocetb++;};
   };
  if($prefix>0)
   {
@@ -365,8 +378,8 @@ while(!(($prefix==0)and($suffix==0)))
     $i++;
     };
   };
- $prefix=freadbyte($f);
- $suffix=freadbyte($f);
+ $prefix=jpexs_freadbyte($f);
+ $suffix=jpexs_freadbyte($f);
  $pocetb+=2;
  if($echoit) echo "Prefix: $prefix Suffix: $suffix<BR>";
 };
@@ -391,20 +404,23 @@ $Data="";
     {
      for($x=0;$x<$Width;$x++)
       {
-       $B=freadbyte($f);
-       $G=freadbyte($f);
-       $R=freadbyte($f);
+       $B=jpexs_freadbyte($f);
+       $G=jpexs_freadbyte($f);
+       $R=jpexs_freadbyte($f);
        $color=imagecolorexact($img,$R,$G,$B);
        if($color==-1) $color=imagecolorallocate($img,$R,$G,$B);
        imagesetpixel($img,$x,$y,$color);
       }
     for($z=0;$z<$Zbytek;$z++)
-     freadbyte($f);
+     jpexs_freadbyte($f);
    };
 };
 return $img;
 
-};
+}
+else{
+    return false;
+}
 
 
 fclose($f);
@@ -417,51 +433,50 @@ fclose($f);
 
 
 /*
-* Helping functions:
+* Internal functions:
 *-------------------------
 *
-* freadbyte($file) - reads 1 byte from $file
-* freadword($file) - reads 2 bytes (1 word) from $file
-* freaddword($file) - reads 4 bytes (1 dword) from $file
-* freadlngint($file) - same as freaddword($file)
-* decbin8($d) - returns binary string of d zero filled to 8
-* RetBits($byte,$start,$len) - returns bits $start->$start+$len from $byte
-* freadbits($file,$count) - reads next $count bits from $file
-* RGBToHex($R,$G,$B) - convert $R, $G, $B to hex
-* int_to_dword($n) - returns 4 byte representation of $n
-* int_to_word($n) - returns 2 byte representation of $n
+* jpexs_freadbyte($file) - reads 1 byte from $file
+* jpexs_freadword($file) - reads 2 bytes (1 word) from $file
+* jpexs_freaddword($file) - reads 4 bytes (1 dword) from $file
+* jpexs_freadlngint($file) - same as freaddword($file)
+* jpexs_decbin8($d) - returns binary string of d zero filled to 8
+* jpexs_retBits($byte,$start,$len) - returns bits $start->$start+$len from $byte
+* jpexs_freadbits($file,$count) - reads next $count bits from $file
+* jpexs_int_to_dword($n) - returns 4 byte representation of $n
+* jpexs_int_to_word($n) - returns 2 byte representation of $n
 */
 
-function freadbyte($f)
+function jpexs_freadbyte($f)
 {
  return ord(fread($f,1));
 };
 
-function freadword($f)
+function jpexs_freadword($f)
 {
- $b1=freadbyte($f);
- $b2=freadbyte($f);
+ $b1=jpexs_freadbyte($f);
+ $b2=jpexs_freadbyte($f);
  return $b2*256+$b1;
 };
 
 
-function freadlngint($f)
+function jpexs_freadlngint($f)
 {
-return freaddword($f);
+return jpexs_freaddword($f);
 };
 
-function freaddword($f)
+function jpexs_freaddword($f)
 {
- $b1=freadword($f);
- $b2=freadword($f);
+ $b1=jpexs_freadword($f);
+ $b2=jpexs_freadword($f);
  return $b2*65536+$b1;
 };
 
 
 
-function RetBits($byte,$start,$len)
+function jpexs_retBits($byte,$start,$len)
 {
-$bin=decbin8($byte);
+$bin=jpexs_decbin8($byte);
 $r=bindec(substr($bin,$start,$len));
 return $r;
 
@@ -469,50 +484,42 @@ return $r;
 
 
 
-$CurrentBit=0;
-function freadbits($f,$count)
+$jpexs_CurrentBit=0;
+function jpexs_freadbits($f,$count)
 {
- global $CurrentBit,$SMode;
- $Byte=freadbyte($f);
- $LastCBit=$CurrentBit;
- $CurrentBit+=$count;
- if($CurrentBit==8)
+ global $jpexs_CurrentBit,$SMode;
+ $Byte=jpexs_freadbyte($f);
+ $LastCBit=$jpexs_CurrentBit;
+ $jpexs_CurrentBit+=$count;
+ if($jpexs_CurrentBit==8)
   {
-   $CurrentBit=0;
+   $jpexs_CurrentBit=0;
   }
  else
   {
    fseek($f,ftell($f)-1);
   };
- return RetBits($Byte,$LastCBit,$count);
+ return jpexs_retBits($Byte,$LastCBit,$count);
 };
 
 
 
-function RGBToHex($Red,$Green,$Blue)
-  {
-   $hRed=dechex($Red);if(strlen($hRed)==1) $hRed="0$hRed";
-   $hGreen=dechex($Green);if(strlen($hGreen)==1) $hGreen="0$hGreen";
-   $hBlue=dechex($Blue);if(strlen($hBlue)==1) $hBlue="0$hBlue";
-   return($hRed.$hGreen.$hBlue);
-  };
-
-        function int_to_dword($n)
+        function jpexs_int_to_dword($n)
         {
                 return chr($n & 255).chr(($n >> 8) & 255).chr(($n >> 16) & 255).chr(($n >> 24) & 255);
         }
-        function int_to_word($n)
+        function jpexs_int_to_word($n)
         {
                 return chr($n & 255).chr(($n >> 8) & 255);
         }
 
 
-function decbin8($d)
+function jpexs_decbin8($d)
 {
-return decbinx($d,8);
+return jpexs_decbinx($d,8);
 };
 
-function decbinx($d,$n)
+function jpexs_decbinx($d,$n)
 {
 $bin=decbin($d);
 $sbin=strlen($bin);
@@ -521,7 +528,7 @@ for($j=0;$j<$n-$sbin;$j++)
 return $bin;
 };
 
-function inttobyte($n)
+function jpexs_inttobyte($n)
 {
 return chr($n);
 };
