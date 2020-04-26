@@ -2,7 +2,7 @@
 
 /**
  * JPEXS BMP Image functions
- * @version 2.0
+ * @version 2.1
  * @author JPEXS
  * @copyright (c) JPEXS 2004-2020
  *
@@ -11,6 +11,9 @@
  *
  *
  *        Version changes:
+ *                2020-04-27 v2.1
+ *                      - trigging notice on invalid compression
+ *                      - added BI_BITFIELDS compression support
  *                2020-04-01  v2.0
  *                      - code formatting,
  *                      - correctly closing files fix
@@ -43,8 +46,10 @@ namespace Com\Jpexs\Image
 {
       class Bitmap
       {
+            const BI_RGB = 0;
             const BI_RLE8 = 1;
             const BI_RLE4 = 2;
+            const BI_BITFIELDS = 3;
             private $currentBit = 0;
 
             /**
@@ -294,17 +299,20 @@ namespace Com\Jpexs\Image
                         {
                               $img = imagecreate($width, $height);
                               $Colors = pow(2, $biBitCount);
-                              for ($p = 0; $p < $Colors; $p++)
+                              if ($compressionMethod !== self::BI_BITFIELDS)
                               {
-                                    $B = $this->freadbyte($f);
-                                    $G = $this->freadbyte($f);
-                                    $R = $this->freadbyte($f);
-                                    $this->freadbyte($f); //Reserved
-                                    $palette[] = imagecolorallocate($img, $R, $G, $B);
+                                    for ($p = 0; $p < $Colors; $p++)
+                                    {
+                                          $B = $this->freadbyte($f);
+                                          $G = $this->freadbyte($f);
+                                          $R = $this->freadbyte($f);
+                                          $this->freadbyte($f); //Reserved
+                                          $palette[] = imagecolorallocate($img, $R, $G, $B);
+                                    }
                               }
 
 
-                              if ($compressionMethod == 0)
+                              if ($compressionMethod == self::BI_RGB)
                               {
                                     $remainder = (4 - ceil(($width / (8 / $biBitCount))) % 4) % 4;
 
@@ -446,16 +454,65 @@ namespace Com\Jpexs\Image
 
                               }
                         }
+                        else if ($compressionMethod === self::BI_BITFIELDS)
+                        {
+                              if (!in_array($biBitCount,[16,32],true))
+                              {
+                                    //invalid bit count with BI_BITFIELDS compression
+                                    trigger_error("imagrecreatefrombmp: Invalid bit count form BI_BITFIELDS compression: ".$biBitCount);
+
+                                    return false;
+                              }
+
+                              $redMask = $this->freaddword($f);
+                              $greenMask = $this->freaddword($f);
+                              $blueMask = $this->freaddword($f);
+                              $redZeroes = $this->numBitZeroesFromRight($redMask);
+                              $greenZeroes = $this->numBitZeroesFromRight($greenMask);
+                              $blueZeroes = $this->numBitZeroesFromRight($blueMask);
+
+
+                              $img = imagecreatetruecolor($width, $height);
+                              $remainder = $biBitCount == 32 ? 0 : (4 - (($width * 2) % 4));
+
+                              for ($y = $height - 1; $y >= 0; $y--)
+                              {
+                                    for ($x = 0; $x < $width; $x++)
+                                    {
+                                          if ($biBitCount == 16)
+                                          {
+                                                $w = $this->freadword($f);
+                                          }
+                                          else //32
+                                          {
+                                                $w = $this->freaddword($f);
+                                          }
+
+                                          $R = floor((($w & $redMask)>>$redZeroes)*255/($redMask>>$redZeroes));
+                                          $G = floor((($w & $greenMask)>>$greenZeroes)*255/($greenMask>>$greenZeroes));
+                                          $B = floor((($w & $blueMask)>>$blueZeroes)*255/($blueMask>>$blueZeroes));
+
+                                          $color = imagecolorexact($img, $R, $G, $B);
+                                          if ($color == -1) $color = imagecolorallocate($img, $R, $G, $B);
+                                          imagesetpixel($img, $x, $y, $color);
+                                    }
+                                    for ($z = 0; $z < $remainder; $z++)
+                                    {
+                                          $this->freadbyte($f);
+                                    }
+                              }
+                        }
                         else if ($compressionMethod != 0)
                         {
                               //unsupported compression method
+                              trigger_error("imagrecreatefrombmp: Unsupported compression method: ".$compressionMethod);
                               return false;
                         }
 
-                        if ($biBitCount == 24)
+                        if ($biBitCount == 24 && $compressionMethod === self::BI_RGB)
                         {
                               $img = imagecreatetruecolor($width, $height);
-                              $remainder = $width % 4;
+                              $remainder = 4 - (($width*3) % 4);
 
                               for ($y = $height - 1; $y >= 0; $y--)
                               {
@@ -474,7 +531,7 @@ namespace Com\Jpexs\Image
                                     }
                               }
                         }
-                        if ($biBitCount == 32)
+                        if ($biBitCount == 32 && $compressionMethod === self::BI_RGB)
                         {
                               $img = imagecreatetruecolor($width,$height);
                               for ($y = $height - 1; $y >= 0; $y--)
@@ -500,6 +557,21 @@ namespace Com\Jpexs\Image
                         fclose($f);
                         return false;
                   }
+            }
+
+            private function numBitZeroesFromRight($num)
+            {
+                  if ($num == 0)
+                  {
+                        return 1;
+                  }
+                  $ret = 0;
+                  while(($num & 1) === 0)
+                  {
+                        $ret++;
+                        $num = $num >> 1;
+                  }
+                  return $ret;
             }
 
             /**
