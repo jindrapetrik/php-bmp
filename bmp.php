@@ -2,15 +2,17 @@
 
 /**
  * JPEXS BMP Image functions
- * @version 2.1
+ * @version 2.2
  * @author JPEXS
- * @copyright (c) JPEXS 2004-2020
+ * @copyright (c) JPEXS 2004-2022
  *
  * Webpage: http://www.jpexs.com
  * Email: jpexs@jpexs.com
  *
  *
  *        Version changes:
+ *                2022-01-03 v2.2
+ *                      - fixed remainder in 16bit BI_BITFIELDS
  *                2020-04-27 v2.1
  *                      - trigging notice on invalid compression
  *                      - added BI_BITFIELDS compression support
@@ -456,10 +458,10 @@ namespace Com\Jpexs\Image
                         }
                         else if ($compressionMethod === self::BI_BITFIELDS)
                         {
-                              if (!in_array($biBitCount,[16,32],true))
+                              if (!in_array($biBitCount, [16, 32], true))
                               {
                                     //invalid bit count with BI_BITFIELDS compression
-                                    trigger_error("imagrecreatefrombmp: Invalid bit count form BI_BITFIELDS compression: ".$biBitCount);
+                                    trigger_error("imagrecreatefrombmp: Invalid bit count form BI_BITFIELDS compression: " . $biBitCount);
 
                                     return false;
                               }
@@ -473,7 +475,7 @@ namespace Com\Jpexs\Image
 
 
                               $img = imagecreatetruecolor($width, $height);
-                              $remainder = $biBitCount == 32 ? 0 : (4 - (($width * 2) % 4));
+                              $remainder = $biBitCount == 32 ? 0 : (4 - (($width * 2) % 4)) % 4;
 
                               for ($y = $height - 1; $y >= 0; $y--)
                               {
