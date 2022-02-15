@@ -37,4 +37,4 @@ BI_RGB, BI_RLE8, BI_RLE4, BI_BITFIELDS
 Jindra Petřík aka JPEXS
 
 ## License
-The library is licensed under GNU/LGPL v3
+The library is licensed under GNU/LGPL v2.1
