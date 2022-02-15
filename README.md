@@ -38,3 +38,6 @@ Jindra Petřík aka JPEXS
 
 ## License
 The library is licensed under GNU/LGPL v2.1
+
+## Changelog
+Changes in versions are logged in the file [CHANGELOG.md](CHANGELOG.md)
