@@ -22,7 +22,7 @@
  *                      - class encapsulation
  *                      - reading 32 bit images
  *                      - ignoring unknown compressions
- *                      - License changed to GNU/LGPL v3
+ *                      - License changed to GNU/LGPL v2.1
  *                2012-02-18  v1.2 - License changed to GNU/GPL v3
  *                2009-09-23  v1.1
  *                      - redesigned sourcecode,
