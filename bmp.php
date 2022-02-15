@@ -9,27 +9,6 @@
  * Webpage: http://www.jpexs.com
  * Email: jpexs@jpexs.com
  *
- *
- *        Version changes:
- *                2022-01-03 v2.2
- *                      - fixed remainder in 16bit BI_BITFIELDS
- *                2020-04-27 v2.1
- *                      - trigging notice on invalid compression
- *                      - added BI_BITFIELDS compression support
- *                2020-04-01  v2.0
- *                      - code formatting,
- *                      - correctly closing files fix
- *                      - class encapsulation
- *                      - reading 32 bit images
- *                      - ignoring unknown compressions
- *                      - License changed to GNU/LGPL v2.1
- *                2012-02-18  v1.2 - License changed to GNU/GPL v3
- *                2009-09-23  v1.1
- *                      - redesigned sourcecode,
- *                      - phpdoc included,
- *                      - all internal functions and global variables have prefix "jpexs_"
- *
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
